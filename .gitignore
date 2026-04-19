@@ -1,0 +1,6 @@
+dist/
+node_modules/
+*.db
+*.pid
+.env
+.DS_Store
