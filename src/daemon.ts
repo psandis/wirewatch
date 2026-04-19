@@ -71,7 +71,7 @@ async function main(): Promise<void> {
   if (pruned > 0) log(`Pruned ${pruned} expired connections.`);
 
   sessionId = startSession(config.capture.mode);
-  stopCapture = startCapture(config, sessionId);
+  stopCapture = await startCapture(config, sessionId);
 
   log("Capture running.");
 }

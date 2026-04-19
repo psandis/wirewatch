@@ -47,12 +47,12 @@ export async function flushQueue(config: WirewatchConfig): Promise<void> {
     const results = (await res.json()) as Array<{
       status: string;
       countryCode: string;
-      query: string;
     }>;
 
-    for (const result of results) {
+    for (let i = 0; i < results.length; i++) {
+      const result = results[i];
       if (result.status === "success" && result.countryCode) {
-        updateCountryCode(result.query, result.countryCode);
+        updateCountryCode(batch[i], result.countryCode);
       }
     }
   } catch {

@@ -45,15 +45,25 @@ function formatProtocol(proto: string): string {
   return chalk.bold(proto.toUpperCase());
 }
 
+function decodeProcessName(name: string | null): string {
+  if (!name) return "-";
+  return name.replace(/\\x[0-9a-fA-F]{2}/g, (m) => String.fromCharCode(parseInt(m.slice(2), 16)));
+}
+
+function stripAnsi(s: string): string {
+  return s.replace(/\u001B\[[0-9;]*m/g, "");
+}
+
 function pad(s: string, len: number): string {
-  return s.length >= len ? s.slice(0, len) : s + " ".repeat(len - s.length);
+  const visible = stripAnsi(s).length;
+  return visible >= len ? s : s + " ".repeat(len - visible);
 }
 
 // -- Connection table --
 
 const COL_WIDTHS = {
   id:      6,
-  proto:   5,
+  proto:   7,
   src:     22,
   dst:     30,
   dir:     6,
@@ -84,12 +94,12 @@ export function formatConnectionRow(conn: Connection): string {
 
   return (
     pad(String(conn.id), COL_WIDTHS.id) +
-    pad(formatProtocol(conn.protocol), COL_WIDTHS.proto + 9) +
+    pad(formatProtocol(conn.protocol), COL_WIDTHS.proto) +
     pad(src, COL_WIDTHS.src) +
     pad(dst, COL_WIDTHS.dst) +
-    pad(formatDirection(conn.direction), COL_WIDTHS.dir + 9) +
+    pad(formatDirection(conn.direction), COL_WIDTHS.dir) +
     pad(conn.state ?? "-", COL_WIDTHS.state) +
-    pad(conn.process_name ?? "-", COL_WIDTHS.process) +
+    pad(decodeProcessName(conn.process_name), COL_WIDTHS.process) +
     pad(conn.country_code ?? "-", COL_WIDTHS.country) +
     formatTimestamp(conn.last_seen)
   );
@@ -115,7 +125,7 @@ export function formatConnectionDetail(conn: Connection): string {
     conn.dst_hostname ? `  ${chalk.dim("Hostname")}     ${conn.dst_hostname}` : null,
     conn.country_code ? `  ${chalk.dim("Country")}      ${conn.country_code}` : null,
     `  ${chalk.dim("State")}        ${conn.state ?? "-"}`,
-    `  ${chalk.dim("Process")}      ${conn.process_name ?? "-"}${conn.process_pid ? ` (PID ${conn.process_pid})` : ""}`,
+    `  ${chalk.dim("Process")}      ${decodeProcessName(conn.process_name)}${conn.process_pid ? ` (PID ${conn.process_pid})` : ""}`,
     `  ${chalk.dim("Capture")}      ${conn.capture_mode}`,
     `  ${chalk.dim("Bytes sent")}   ${formatBytes(conn.bytes_sent)}`,
     `  ${chalk.dim("Bytes recv")}   ${formatBytes(conn.bytes_recv)}`,

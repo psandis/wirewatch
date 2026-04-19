@@ -1,4 +1,5 @@
 import { networkInterfaces } from "node:os";
+import { resolve4 } from "node:dns/promises";
 import { enqueueIp, flushQueue } from "../geo.js";
 import { incrementSession, upsertConnection } from "../db.js";
 import type { WirewatchConfig, ConnectionDirection } from "../../types.js";
@@ -31,7 +32,8 @@ function resolveDirection(
   return "inbound";
 }
 
-function writeConnection(conn: RawConnection, sessionId: number, localIps: Set<string>): void {
+function writeConnection(conn: RawConnection, sessionId: number, localIps: Set<string>, excludeIps: Set<string>): void {
+  if (excludeIps.has(conn.dst_ip)) return;
   const enriched = {
     ...conn,
     direction: resolveDirection(conn.src_ip, conn.dst_ip, localIps),
@@ -41,13 +43,20 @@ function writeConnection(conn: RawConnection, sessionId: number, localIps: Set<s
   incrementSession(sessionId);
 }
 
-export function startCapture(config: WirewatchConfig, sessionId: number): () => void {
+export async function startCapture(config: WirewatchConfig, sessionId: number): Promise<() => void> {
   const { mode, interval, interfaces } = config.capture;
   const localIps = getLocalIps();
 
+  const excludeIps = new Set<string>();
+  try {
+    const geoHost = new URL(config.geo.url).hostname;
+    const ips = await resolve4(geoHost);
+    for (const ip of ips) excludeIps.add(ip);
+  } catch { /* DNS failed or invalid URL */ }
+
   if (mode === "deep") {
     const stopDeep = startDeepCapture(interfaces, (conn) => {
-      writeConnection(conn, sessionId, localIps);
+      writeConnection(conn, sessionId, localIps, excludeIps);
     });
 
     const geoInterval = setInterval(() => {
@@ -71,7 +80,7 @@ export function startCapture(config: WirewatchConfig, sessionId: number): () => 
     for (const [key, conn] of currentMap) {
       const prev = previousSnapshot.get(key);
       if (!prev) {
-        writeConnection(conn, sessionId, localIps);
+        writeConnection(conn, sessionId, localIps, excludeIps);
       } else if (prev.state !== conn.state) {
         upsertConnection({ ...conn, first_seen: prev.first_seen, last_seen: now });
       }

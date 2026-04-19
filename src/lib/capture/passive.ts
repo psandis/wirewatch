@@ -156,7 +156,7 @@ async function snapshotMacOs(now: number, lsofTimeout: number): Promise<RawConne
       const cols = line.trim().split(/\s+/);
       if (cols.length < 9) continue;
 
-      const process_name = cols[0] ?? null;
+      const process_name = cols[0] ? cols[0].replace(/\\x[0-9a-fA-F]{2}/g, (m) => String.fromCharCode(parseInt(m.slice(2), 16))) : null;
       const process_pid = cols[1] ? Number(cols[1]) : null;
       const protocol = cols[7]?.toUpperCase();
       const nameField = cols.slice(8).join(" ");

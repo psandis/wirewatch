@@ -110,10 +110,10 @@ export function upsertConnection(conn: Omit<Connection, "id">): void {
     .run(conn);
 }
 
-export function updateCountryCode(dst_ip: string, country_code: string): void {
-  getDb()
+export function updateCountryCode(dst_ip: string, country_code: string): number {
+  return getDb()
     .prepare(`UPDATE connections SET country_code = ? WHERE dst_ip = ? AND country_code IS NULL`)
-    .run(country_code, dst_ip);
+    .run(country_code, dst_ip).changes;
 }
 
 export function queryConnections(opts: QueryConnectionsOptions = {}): Connection[] {

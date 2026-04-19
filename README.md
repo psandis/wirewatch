@@ -20,7 +20,6 @@ wirewatch runs a lightweight background daemon that watches every network connec
 - [TypeScript](https://www.typescriptlang.org/) on Node.js 22+
 - [SQLite](https://www.sqlite.org/) via [better-sqlite3](https://github.com/WiseLibs/better-sqlite3) for local storage
 - [Commander](https://github.com/tj/commander.js) for CLI parsing
-- [Ink](https://github.com/vadimdemedes/ink) + [React](https://react.dev/) for the live monitor view
 - [chalk](https://github.com/chalk/chalk) for terminal colors
 - [Anthropic SDK](https://github.com/anthropics/anthropic-sdk-node) and [OpenAI SDK](https://github.com/openai/openai-node) for AI analysis
 - [ip-api.com](http://ip-api.com) for GeoIP country code resolution (free, no key required)
@@ -141,7 +140,7 @@ ww status
 ww monitor
 ```
 
-Opens an interactive live view. Refreshes from SQLite as the daemon captures.
+Opens an interactive live view. Refreshes from SQLite as the daemon captures. Use `↑` `↓` to scroll, `PgUp` `PgDn` to page, `q` to quit.
 
 ### List captured connections
 
