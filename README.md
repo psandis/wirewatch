@@ -38,7 +38,19 @@ wirewatch runs a lightweight background daemon that watches every network connec
 
 ## Install
 
-Clone the repository and install dependencies:
+```bash
+npm install -g wirewatch
+```
+
+Or with pnpm:
+
+```bash
+pnpm add -g wirewatch
+```
+
+After installation, the `ww` command is available globally.
+
+### From source
 
 ```bash
 git clone https://github.com/psandis/wirewatch.git
@@ -47,8 +59,6 @@ pnpm install
 pnpm build
 npm link
 ```
-
-After `npm link`, the `ww` command is available globally.
 
 ## Quick Start
 
@@ -300,12 +310,8 @@ ww config set <key> <value>
 
 | Mode | Root required | Description |
 |------|--------------|-------------|
-| `passive` | No | Polls system connection tables every N seconds |
-| `deep` | Yes (sudo) | Spawns `tcpdump` and streams packets in real time |
-
-**Passive** uses `lsof -i` on macOS and `/proc/net/tcp*` on Linux. Provides IP, port, protocol, state, and process name.
-
-**Deep** provides IP, port, protocol, and byte counts per packet.
+| `passive` | No | Asks the OS what connections are open. Uses `lsof` on macOS and `/proc/net` on Linux. Polls every N seconds. |
+| `deep` | Yes (sudo) | Runs `tcpdump` and intercepts every packet in real time. Catches short-lived connections and byte counts. |
 
 ```bash
 ww config set capture.mode deep
