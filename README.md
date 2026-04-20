@@ -2,7 +2,7 @@
 
 [![npm](https://img.shields.io/npm/v/wirewatch?style=flat-square)](https://www.npmjs.com/package/wirewatch)
 
-Network traffic monitoring CLI with AI-assisted anomaly detection. All data stays local in SQLite. No cloud, no telemetry.
+Network traffic monitoring CLI with AI-assisted anomaly detection. All data stays local in SQLite. No cloud, no telemetry. Works standalone or as an [OpenClaw](https://github.com/openclaw/openclaw) skill.
 
 wirewatch runs a lightweight background daemon that watches every network connection on your machine. It records what is connecting, where it is going, which process opened it, and how long it stays open. When you want answers, you run `ww analyze` and an AI model reviews the traffic and flags anything suspicious like unusual ports, unexpected destinations, unknown processes making outbound calls.
 
@@ -338,6 +338,40 @@ sudo ww start
 | `geo.timeout` | `3000` | GeoIP request timeout in milliseconds |
 | `geo.flushInterval` | `10000` | GeoIP flush interval in milliseconds |
 
+## Agent Integration
+
+Most commands support `--json` for structured output:
+
+```bash
+ww list --json
+ww show <id> --json
+ww analyze --json
+ww analyses --json
+ww db stats --json
+```
+
+### OpenClaw Skill
+
+Once installed globally (`npm install -g wirewatch`), add a `SKILL.md` to your workspace:
+
+```markdown
+---
+name: wirewatch
+description: Monitor network connections and detect suspicious activity with AI analysis
+version: 1.0.0
+requires_binaries:
+  - ww
+---
+
+When the user asks about network traffic, connections, or security anomalies, use the `ww` CLI:
+
+- To list recent connections: `ww list --json`
+- To run AI analysis: `ww analyze --json`
+- To check daemon status: `ww status`
+- To show connection detail: `ww show <id> --json`
+- To view past analyses: `ww analyses --json`
+```
+
 ## Project Structure
 
 ```
@@ -383,6 +417,15 @@ pnpm test        # 64 tests across config, db, capture, and ai modules
 pnpm typecheck
 pnpm lint
 ```
+
+## Related
+
+- 🦀 [Feedclaw](https://github.com/psandis/feedclaw) — RSS/Atom feed reader and AI digest builder
+- 🦀 [Dustclaw](https://github.com/psandis/dustclaw) — Find out what is eating your disk space
+- 🦀 [Driftclaw](https://github.com/psandis/driftclaw) — Deployment drift detection across environments
+- 🦀 [Dietclaw](https://github.com/psandis/dietclaw) — Codebase health monitor
+- 🦀 [Mymailclaw](https://github.com/psandis/mymailclaw) — Email scanner, categorizer, and cleaner
+- 🦀 [OpenClaw](https://github.com/openclaw/openclaw) — The open source AI assistant
 
 ## License
 
