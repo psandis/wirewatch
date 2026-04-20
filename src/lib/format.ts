@@ -56,7 +56,9 @@ function stripAnsi(s: string): string {
 
 function pad(s: string, len: number): string {
   const visible = stripAnsi(s).length;
-  return visible >= len ? s : s + " ".repeat(len - visible);
+  if (visible > len) return `${s.slice(0, len - 1)}…`;
+  if (visible === len) return s;
+  return s + " ".repeat(len - visible);
 }
 
 // -- Connection table --
